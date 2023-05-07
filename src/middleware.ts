@@ -2,14 +2,9 @@ import { User, createMiddlewareSupabaseClient } from '@supabase/auth-helpers-nex
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const LOGIN_PATH = '/';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SIGN_UP_PATH = '/signup';
-
 const PUBLIC_PATHS = ['/', '/signup'];
 
 const isPublicPage = (pathname: string) => PUBLIC_PATHS.includes(pathname);
-
 const isEmployee = (user: User) => user?.user_metadata?.type === 'employee';
 const isAdmin = (user: User) => user?.user_metadata?.type === 'admin';
 
@@ -22,11 +17,11 @@ export async function middleware(req: NextRequest) {
     } = await supabase.auth.getSession();
 
     if (isPublicPage(req.nextUrl.pathname) && !session?.user) {
-        return NextResponse.next();
+        return res;
     }
 
     if (session?.user) {
-        const rootPath = req.nextUrl.pathname.split('/')[1];
+        const rootPath = req.nextUrl.pathname.split('/')[1]; // This is the first path of the path, e.g. 'admin' or 'employee'
 
         if (isEmployee(session.user)) {
             if (rootPath === 'employee') return res;
@@ -36,11 +31,9 @@ export async function middleware(req: NextRequest) {
             if (rootPath === 'admin') return res;
             return NextResponse.redirect(new URL('/admin', req.url));
         }
-
-        return NextResponse.redirect(new URL('/', req.url));
     }
 
-    return NextResponse.redirect(new URL(LOGIN_PATH, req.url));
+    return NextResponse.redirect(new URL('/', req.url));
 }
 
 export const config = {
