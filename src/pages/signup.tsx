@@ -55,7 +55,7 @@ export default function Signup() {
                     <div className="flex justify-center">
                         <p className="text-sm font-light text-gray-500">
                             Already have an account?{' '}
-                            <Link href="/login" className="font-medium text-[#1E293B] hover:underline ">
+                            <Link href="/" className="font-medium text-[#1E293B] hover:underline ">
                                 Login
                             </Link>
                         </p>
