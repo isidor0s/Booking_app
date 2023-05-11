@@ -1,43 +1,48 @@
-import React from 'react';
+import React, { FC } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { _supabaseClient } from '@/utils/supabase';
+import cn from 'classnames';
+
+const NavLink: FC<{ name: string; href: string; isActive?: boolean }> = ({ name, href, isActive = false }) => {
+    return (
+        <li>
+            <Link
+                href={href}
+                className={cn('flex items-center rounded-lg p-2 py-2.5 pl-4 transition-colors hover:bg-slate-400', {
+                    'bg-slate-800 text-white': isActive,
+                    'text-slate-800': !isActive,
+                })}
+            >
+                <div className="font-medium">{name}</div>
+            </Link>
+        </li>
+    );
+};
 
 export default function Sidebar() {
-    return (
-        <>
-        
-            <aside
-                id="default-sidebar"
-                className="fixed left-0   top-0 z-40 h-screen w-64 -translate-x-full bg-[#CBD5E1] transition-transform sm:translate-x-0"
-                aria-label="Sidebar"
-            >
-                <div className="flex h-full flex-col justify-between overflow-y-auto  px-12 py-16">
-                    <ul className=" space-y-4 font-medium text-red-600">
-                        <li className="">
-                            <Link
-                                href="#"
-                                className="flex items-center rounded-lg  p-2 py-2.5 pl-4 text-[#1E293B]  hover:bg-[#1E293B] hover:text-white"
-                            >
-                                <div className="font-medium">Dashboard</div>
-                            </Link>
-                        </li>
-                        <li className="">
-                            <Link
-                                href="#"
-                                className="flex items-center rounded-lg p-2 py-2.5 pl-4 text-[#1E293B]  hover:bg-[#1E293B] hover:text-white"
-                            >
-                                <div className="font-medium">Requests</div>
-                            </Link>
-                        </li>
-                    </ul>
+    const { reload, pathname } = useRouter();
+    const activePage = pathname.split('/')[2];
 
-                    <button
-                        id="logout"
-                        className="rounded-lg bg-[#EF4444] px-12 py-2.5 text-white hover:border hover:border-red-500 hover:bg-red-300 hover:text-red-500"
-                    >
-                        Logout
-                    </button>
-                </div>
-            </aside>
-        </>
+    return (
+        <aside className="sticky inset-0 z-40 h-screen w-64 bg-[#CBD5E1]">
+            <div className="flex h-full flex-col justify-between px-12 py-16">
+                <ul className="space-y-4 font-medium">
+                    <NavLink name={'Dashboard'} href={'/admin'} isActive={activePage === undefined} />
+                    <NavLink name={'Requests'} href={'/admin/requests'} isActive={activePage === 'requests'} />
+                    <NavLink name={'Create room'} href={'/admin/create-room'} isActive={activePage === 'create-room'} />
+                </ul>
+
+                <button
+                    className="rounded-lg border bg-[#EF4444] px-12 py-2.5 text-white transition-colors hover:border-red-500 hover:bg-red-100 hover:text-red-500"
+                    onClick={async () => {
+                        await _supabaseClient.auth.signOut();
+                        reload();
+                    }}
+                >
+                    Logout
+                </button>
+            </div>
+        </aside>
     );
 }

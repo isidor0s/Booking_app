@@ -1,30 +1,12 @@
-import Sidebar from '@/components/side-bar';
-import { _supabaseClient } from '@/utils/supabase';
-import { useSession } from '@supabase/auth-helpers-react';
+import Layout from '@/layouts/layout';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
 
-const AdminPage: NextPage = () => {
-    const session = useSession();
-    const { reload } = useRouter();
-
+const Dashboard: NextPage = () => {
     return (
-        <>
-            {/* <h1>Signed in as admin</h1>
-            {session && <p>{session?.user.id}</p>}
-            <button
-                onClick={async () => {
-                    await _supabaseClient.auth.signOut();
-                    reload();
-                }}
-            >
-                Logout
-            </button> */}
-            <div>
-                <Sidebar/>
-            </div>
-        </>
+        <Layout>
+            <div className={'text-3xl font-semibold text-slate-800'}>Dashboard</div>
+        </Layout>
     );
 };
 
-export default AdminPage;
+export default Dashboard;
