@@ -9,9 +9,9 @@ const NavLink: FC<{ name: string; href: string; isActive?: boolean }> = ({ name,
         <li>
             <Link
                 href={href}
-                className={cn('flex items-center rounded-lg p-2 py-2.5 pl-4 transition-colors hover:bg-slate-400', {
-                    'bg-slate-800 text-white': isActive,
-                    'text-slate-800': !isActive,
+                className={cn('flex items-center rounded-lg p-2 py-2.5 pl-4 transition-colors', {
+                    'bg-slate-800 text-white hover:bg-slate-900': isActive,
+                    'text-slate-800 hover:text-slate-600': !isActive,
                 })}
             >
                 <div className="font-medium">{name}</div>
@@ -46,3 +46,5 @@ export default function Sidebar() {
         </aside>
     );
 }
+
+
