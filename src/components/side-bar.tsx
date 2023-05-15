@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { _supabaseClient } from '@/utils/supabase';
 import cn from 'classnames';
+import { useUser } from '@supabase/auth-helpers-react';
 
 const NavLink: FC<{ name: string; href: string; isActive?: boolean }> = ({ name, href, isActive = false }) => {
     return (
@@ -24,13 +25,40 @@ export default function Sidebar() {
     const { reload, pathname } = useRouter();
     const activePage = pathname.split('/')[2];
 
+    const user = useUser();
+    const userType = user?.user_metadata.type;
+
     return (
         <aside className="sticky inset-0 z-40 h-screen w-64 bg-[#CBD5E1]">
             <div className="flex h-full flex-col justify-between px-12 py-16">
                 <ul className="space-y-4 font-medium">
-                    <NavLink name={'Dashboard'} href={'/admin'} isActive={activePage === undefined} />
-                    <NavLink name={'Requests'} href={'/admin/requests'} isActive={activePage === 'requests'} />
-                    <NavLink name={'Create room'} href={'/admin/create-room'} isActive={activePage === 'create-room'} />
+                    <>
+                        {userType === 'admin' && (
+                            <>
+                                <NavLink name={'Dashboard'} href={'/admin'} isActive={activePage === undefined} />
+                                <NavLink
+                                    name={'Requests'}
+                                    href={'/admin/requests'}
+                                    isActive={activePage === 'requests'}
+                                />
+                                <NavLink
+                                    name={'Create room'}
+                                    href={'/admin/create-room'}
+                                    isActive={activePage === 'create-room'}
+                                />
+                            </>
+                        )}
+                        {userType === 'employee' && (
+                            <>
+                                <NavLink name={'Dashboard'} href={'/employee'} isActive={activePage === undefined} />
+                                <NavLink
+                                    name={'My bookings'}
+                                    href={'/employee/my-bookings'}
+                                    isActive={activePage === 'my-bookings'}
+                                />
+                            </>
+                        )}
+                    </>
                 </ul>
 
                 <button
@@ -46,5 +74,3 @@ export default function Sidebar() {
         </aside>
     );
 }
-
-
