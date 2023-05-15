@@ -1,7 +1,7 @@
 export type Availability = 'Available' | 'Unvailable' | 'Cancelled' | 'Finished';
 
 export interface Room {
-    id: string;
+    id: number;
     admin_id: string;
     name: string;
     date: string;
