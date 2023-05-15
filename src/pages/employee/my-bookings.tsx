@@ -3,10 +3,10 @@ import { NextPage } from 'next';
 import cn from 'classnames';
 import type { FC } from 'react';
 import { Booking, BookingStatus } from '@/types/booking';
-import { _supabaseClient } from '@/utils/supabase';
 import { useQuery } from 'react-query';
 import { useUser } from '@supabase/auth-helpers-react';
 import dayjs from 'dayjs';
+import { QueryBookings } from '@/utils/queries';
 
 const StatusBadge: FC<{ status: BookingStatus }> = ({ status }) => {
     return (
@@ -39,13 +39,11 @@ const BookingCard: FC<{ booking: Booking }> = ({ booking }) => {
     );
 };
 
-const fetchBookings = async (employee_id: string) => {
-    return await _supabaseClient.from('booking').select().eq('employee_id', employee_id).returns<Booking[]>();
-};
-
 const RequestsPage: NextPage = () => {
     const user = useUser();
-    const { data: bookings } = useQuery('bookings', () => fetchBookings(user?.id || ''));
+    const { data: bookings } = useQuery('bookings', () => QueryBookings(user?.id || ''), {
+        enabled: !!user?.id,
+    });
 
     return (
         <Layout>

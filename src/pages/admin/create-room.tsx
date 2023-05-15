@@ -1,6 +1,6 @@
 import Layout from '@/layouts/layout';
 import { Room } from '@/types/room';
-import { _supabaseClient } from '@/utils/supabase';
+import { CreateRoomQuery } from '@/utils/queries';
 import { useUser } from '@supabase/auth-helpers-react';
 import { NextPage } from 'next';
 import { FormEvent, useRef, useState } from 'react';
@@ -23,18 +23,13 @@ const CreateRoom: NextPage = () => {
 
     const createRoom = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const { data } = await _supabaseClient
-            .from('room')
-            .insert({
-                admin_id: user?.id,
-                name: name,
-                date: date,
-                type: type,
-                capacity: capacity,
-                availability: 'Available',
-            })
-            .select()
-            .single<Room>();
+        const newRoom: Partial<Room> = {
+            name: name,
+            date: date,
+            type: type,
+            capacity: capacity,
+        };
+        const { data } = await CreateRoomQuery(user?.id || '', newRoom);
 
         resetForm();
 

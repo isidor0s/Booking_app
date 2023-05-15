@@ -1,22 +1,19 @@
+import { Room } from '@/types/room';
 import dayjs from 'dayjs';
 import { FC, FormEvent } from 'react';
 
 type RoomCardProps = {
-    title: string;
-    type: string;
-    date: string;
-    capacity: number;
-    slots_booked: number;
     onBook?: (e: FormEvent<HTMLFormElement>) => void;
+    room: Partial<Room>;
 };
 
-const RoomCard: FC<RoomCardProps> = ({ title, type, date, capacity, slots_booked, onBook }) => {
+const RoomCard: FC<RoomCardProps> = ({ room: { name, type, date, capacity, slots_booked }, onBook }) => {
     return (
         <div className="flex h-[116px] w-[425px] gap-[14px] rounded-lg border border-slate-400 p-4">
             <div className="h-full w-[120px] rounded-lg bg-slate-200"></div>
             <div className="relative flex w-full flex-col justify-between">
                 <div className="flex flex-col">
-                    <div className={'text-[20px] font-semibold text-slate-800'}>{title}</div>
+                    <div className={'text-[20px] font-semibold text-slate-800'}>{name}</div>
                     <div className="font-medium text-slate-500">{type}</div>
                 </div>
                 <div className="flex items-center justify-between">

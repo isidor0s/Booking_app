@@ -7,5 +7,5 @@ export interface Room {
     date: string;
     type: string;
     capacity: number;
-    availability: Availability;
+    slots_booked: number;
 }
