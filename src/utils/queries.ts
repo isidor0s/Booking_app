@@ -28,3 +28,18 @@ export const QueryRooms = async () => {
 export const QueryRoomsByAdminId = async (adminId: string) => {
     return await _supabaseClient.from('room').select().eq('admin_id', adminId).returns<Room[]>();
 };
+
+export const CreateBooking = async (booking: Omit<Booking, 'id'>) => {
+    return await _supabaseClient
+        .from('booking')
+        .insert({
+            room_id: booking.room_id,
+            admin_id: booking.admin_id,
+            employee_id: booking.employee_id,
+            status: booking.status,
+            room_name: booking.room_name,
+            date: booking.date,
+        })
+        .select()
+        .single<Booking>();
+};

@@ -1,13 +1,43 @@
+import { Booking } from '@/types/booking';
 import { Room } from '@/types/room';
+import { CreateBooking } from '@/utils/queries';
 import dayjs from 'dayjs';
 import { FC, FormEvent } from 'react';
+import { useUser } from '@supabase/auth-helpers-react';
+import { useQueryClient } from 'react-query';
 
 type RoomCardProps = {
-    onBook?: (e: FormEvent<HTMLFormElement>) => void;
-    room: Partial<Room>;
+    room: Room;
+    canBook?: boolean;
 };
 
-const RoomCard: FC<RoomCardProps> = ({ room: { name, type, date, capacity, slots_booked }, onBook }) => {
+const RoomCard: FC<RoomCardProps> = ({
+    room: { id, admin_id, name, type, date, capacity, slots_booked },
+    canBook = false,
+}) => {
+    const user = useUser();
+    const qc = useQueryClient();
+
+    const onBook = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const booking: Omit<Booking, 'id'> = {
+            room_id: id,
+            admin_id: admin_id,
+            employee_id: user?.id || '',
+            status: 'Pending',
+            room_name: name,
+            date: date,
+        };
+
+        const { data } = await CreateBooking(booking);
+        if (data) {
+            // Refetch queries after booking
+            qc.invalidateQueries(['rooms']);
+            qc.invalidateQueries(['bookings']);
+        }
+    };
+
     return (
         <div className="flex h-[116px] w-[425px] gap-[14px] rounded-lg border border-slate-400 p-4">
             <div className="h-full w-[120px] rounded-lg bg-slate-200"></div>
@@ -22,7 +52,7 @@ const RoomCard: FC<RoomCardProps> = ({ room: { name, type, date, capacity, slots
                         {slots_booked}/{capacity} slots
                     </div>
                 </div>
-                {onBook && (
+                {canBook && (
                     <form onSubmit={onBook}>
                         <button
                             type="submit"
