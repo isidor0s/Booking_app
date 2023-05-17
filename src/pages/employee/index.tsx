@@ -9,7 +9,9 @@ import dayjs from 'dayjs';
 
 const Dashboard: NextPage = () => {
     const user = useUser();
-    const { data: rooms } = useQuery('rooms', () => QueryRooms());
+    const { data: rooms } = useQuery('rooms', () => QueryRooms(), {
+        refetchInterval: 10000,
+    });
     const { data: bookings } = useQuery(['bookings', user?.id], () => QueryBookings(user?.id || ''), {
         enabled: !!user?.id,
     });

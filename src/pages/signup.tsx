@@ -1,6 +1,7 @@
 import { Dispatch, FC, SetStateAction, useState } from 'react';
 import Link from 'next/link';
 import { _supabaseClient } from '@/utils/supabase';
+import { useRouter } from 'next/router';
 
 type UserRole = 'admin' | 'employee';
 
@@ -8,11 +9,12 @@ export default function Signup() {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [role, setRole] = useState<UserRole>('employee');
+    const { reload } = useRouter();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        await _supabaseClient.auth.signUp({
+        const { data } = await _supabaseClient.auth.signUp({
             email: email,
             password: password,
             options: {
@@ -21,6 +23,7 @@ export default function Signup() {
                 },
             },
         });
+        if (data) reload();
     };
 
     return (
