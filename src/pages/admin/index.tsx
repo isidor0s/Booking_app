@@ -12,12 +12,12 @@ const Dashboard: NextPage = () => {
     const { data: rooms } = useQuery('adminRooms', () => QueryRoomsByAdminId(user?.id || ''), {
         enabled: !!user?.id,
     });
-    
+
     const currentRooms = useMemo(() => {
         // Remove the rooms which are full and whose date has passed
-       return rooms?.data?.filter((room) => dayjs(room.date).isAfter(dayjs()) )||[];
-
+        return rooms?.data?.filter((room) => dayjs(room.date).isAfter(dayjs())) || [];
     }, [rooms]);
+
     return (
         <Layout>
             <div className={'text-3xl font-semibold text-slate-800'}>Dashboard</div>

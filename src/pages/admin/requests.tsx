@@ -3,12 +3,13 @@ import { NextPage } from 'next';
 import { FC, useMemo } from 'react';
 import { Booking } from '@/types/booking';
 import { useUser } from '@supabase/auth-helpers-react';
-import { QueryRequests, QueryRoomByRoomId, changeRequest, updateSlot } from '@/utils/queries';
-import { useQuery } from 'react-query';
+import { IncrementSlot, QueryRequests, changeRequest } from '@/utils/queries';
+import { useQuery, useQueryClient } from 'react-query';
 import dayjs from 'dayjs';
 
 const Request: FC<{ request: Booking }> = ({ request }) => {
-    const { data: room } = useQuery(['room', request.room_id], () => QueryRoomByRoomId(request.room_id));
+    const qc = useQueryClient();
+
     return (
         <div className="flex h-[71px] w-[640px] gap-[16px] rounded-lg border border-slate-400 px-4 py-3">
             <div className="flex  flex-col justify-between">
@@ -19,18 +20,14 @@ const Request: FC<{ request: Booking }> = ({ request }) => {
                     </div>
                 </div>
             </div>
-            <div className=" text-medium flex items-center text-base font-medium text-slate-800">
-                {/* <div>
-                            <span className="text-[#78716C]">from:</span>
-                            &nbsp;{request.employee_id}
-                        </div> */}
-            </div>
             <div className="flex flex-auto items-center justify-end gap-4">
                 <div>
                     <button
                         className="rounded-lg border bg-[#EF4444] p-3 text-xs text-white transition-colors hover:border-red-500 hover:bg-red-100 hover:text-red-500"
-                        onClick={() => {
-                            changeRequest(request.id, 'Rejected');
+                        onClick={async () => {
+                            await changeRequest(request.id, 'Rejected');
+
+                            qc.invalidateQueries(['adminRequests']);
                         }}
                     >
                         Reject
@@ -39,9 +36,13 @@ const Request: FC<{ request: Booking }> = ({ request }) => {
                 <div>
                     <button
                         className="rounded-lg border bg-slate-800 p-3 text-xs text-white transition-colors hover:border-slate-500 hover:bg-slate-100 hover:text-slate-500"
-                        onClick={() => {
+                        onClick={async () => {
                             changeRequest(request.id, 'Approved');
-                            updateSlot(request.room_id, (room?.data?.slots_booked || 0) + 1);
+                            const data = await IncrementSlot(request.room_id);
+
+                            if (data?.data) {
+                                qc.invalidateQueries(['adminRequests']);
+                            }
                         }}
                     >
                         Approve
@@ -53,20 +54,22 @@ const Request: FC<{ request: Booking }> = ({ request }) => {
 };
 const RequestsPage: NextPage = () => {
     const user = useUser();
-    const { data: bookings } = useQuery('bookings', () => QueryRequests(user?.id || ''), {
+    const { data: bookings } = useQuery(['adminRequests', user?.id], () => QueryRequests(user?.id || ''), {
         enabled: !!user?.id,
+        refetchInterval: 10000,
     });
 
     const pending_requests = useMemo(() => {
         //filter out the booked and approved
         return bookings?.data?.filter((booking) => booking.status === 'Pending') || [];
     }, [bookings]);
+
     return (
         <Layout>
             <div className={'text-3xl font-semibold text-slate-800'}>Requests</div>
             <div className="flex flex-col gap-4">
                 {pending_requests.map((booking) => (
-                    <Request key={booking.admin_id} request={booking} />
+                    <Request key={booking.id} request={booking} />
                 ))}
             </div>
         </Layout>

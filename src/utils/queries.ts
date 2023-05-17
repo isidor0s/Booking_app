@@ -57,14 +57,23 @@ export const changeRequest = async (id: number, state: string) => {
         .update({
             status: state,
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single<Booking>();
 };
 
-export const updateSlot = async (id: number, value: number) => {
-    return await _supabaseClient
-        .from('room')
-        .update({
-            slots_booked: value,
-        })
-        .eq('id', id);
+export const IncrementSlot = async (roomId: number) => {
+    const { data } = await _supabaseClient.from('room').select().eq('id', roomId).single<Room>();
+
+    if (data) {
+        return await _supabaseClient
+            .from('room')
+            .update({
+                slots_booked: data.slots_booked + 1,
+            })
+            .eq('id', roomId)
+            .select()
+            .single<Room>();
+    }
+    return null;
 };
