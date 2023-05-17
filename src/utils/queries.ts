@@ -32,6 +32,10 @@ export const QueryRoomsByAdminId = async (adminId: string) => {
     return await _supabaseClient.from('room').select().eq('admin_id', adminId).returns<Room[]>();
 };
 
+export const QueryRoomByRoomId = async (id: number) => {
+    return await _supabaseClient.from('room').select().eq('id', id).single<Room>();
+};
+
 export const CreateBooking = async (booking: Omit<Booking, 'id'>) => {
     return await _supabaseClient
         .from('booking')
@@ -47,11 +51,20 @@ export const CreateBooking = async (booking: Omit<Booking, 'id'>) => {
         .single<Booking>();
 };
 
-export const changeRequest = async (id:number,state:string) => {
+export const changeRequest = async (id: number, state: string) => {
     return await _supabaseClient
         .from('booking')
         .update({
             status: state,
         })
-        .eq('id',id)
+        .eq('id', id);
+};
+
+export const updateSlot = async (id: number, value: number) => {
+    return await _supabaseClient
+        .from('room')
+        .update({
+            slots_booked: value,
+        })
+        .eq('id', id);
 };
