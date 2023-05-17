@@ -20,6 +20,9 @@ export const CreateRoomQuery = async (adminId: string, room: Partial<Room>) => {
 export const QueryBookings = async (employee_id: string) => {
     return await _supabaseClient.from('booking').select().eq('employee_id', employee_id).returns<Booking[]>();
 };
+export const QueryRequests = async (admin_id: string) => {
+    return await _supabaseClient.from('booking').select().eq('admin_id', admin_id).returns<Booking[]>();
+};
 
 export const QueryRooms = async () => {
     return await _supabaseClient.from('room').select().returns<Room[]>();
@@ -42,4 +45,13 @@ export const CreateBooking = async (booking: Omit<Booking, 'id'>) => {
         })
         .select()
         .single<Booking>();
+};
+
+export const changeRequest = async (id:number,state:string) => {
+    return await _supabaseClient
+        .from('booking')
+        .update({
+            status: state,
+        })
+        .eq('id',id)
 };
